@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
 
-contract Milosc is Ownable, ERC721Holder {
+contract Milosc is Ownable(msg.sender), ERC721Holder {
    
   mapping(address => mapping(uint256 => bool)) private pupa;
   mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
