@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "ds-test/test.sol";
-import "../src/Stake.sol";
+import "../src/StakingLove.sol";
 import "./mocks/MockERC20.sol";
 import "./mocks/MockERC721.sol";
 import "forge-std/Test.sol";
