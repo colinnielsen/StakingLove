@@ -9,79 +9,42 @@ import "forge-std/Test.sol";
 
 contract StakingLoveTest is DSTest {
     StakingLove stakinglove;
-    MockERC20 token;
     MockERC721 nft;
-    address receiver = 0x1e526ecc6CDcaB653823968b58056Ad5b438C92b;
-
-    uint256 initialETHBalance = address(receiver).balance;
-
+address user1;
     function setUp() public {
-        token = new MockERC20();
         nft = new MockERC721();
+        
+        user1 = address(1);
 
-        stake= new Stake(address(token), address(nft));
-        stake.setLoveStaking(address(this));
+        // Initialize StakingLove contract without arguments
+        stakinglove = new StakingLove();
+        stakinglove.setLoveStaking(0x2e234DAe75C793f67A35089C9d99245E1C58470b);
     }
 
-  
-    function test_stakeNFTs() public {
-        uint256[] memory tokenIds = new uint256[](2);
-        tokenIds[0] = 1;
-        tokenIds[1] = 2;
+    function test_stake() public {
+        uint256 tokenId = 1;
 
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            nft.approve(address(uniqlymigration), tokenIds[i]);
-        }
-        uniqlymigration.migrateNFTs(tokenIds);
+        // Approve the StakingLove contract to transfer the NFT on behalf of this contract
+        nft.approve(address(stakinglove), tokenId);
 
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            assertEq(nft.ownerOf(tokenIds[i]), address(uniqlymigration));
-        }
-        assertEq(uniqlymigration.totalERC721Migrated(address(this)), 2);
-    }
-         
-         function test_stake() public {
-        uint256 calldata tokenId = 1;
-        nft.approve(address(stake), tokenId);
-        stake.stake(tokenId);
-         assertEq(stake.userdata(address(this)), 1);
-
-}
-
-
-    function test_WithdrawTokens() public {
-        uint256 depositAmount = 1e18;
-        token.approve(address(uniqlymigration), depositAmount);
-        uniqlymigration.migrateTokens(depositAmount);
-
-        uint256 contractTokenBalanceBefore = token.balanceOf(
-            address(uniqlymigration)
-        );
-        uint256 receiverTokenBalanceBefore = token.balanceOf(receiver);
-
-        uniqlymigration.withdrawTokens();
-
-        assertEq(token.balanceOf(address(uniqlymigration)), 0);
-        assertEq(
-            token.balanceOf(receiver),
-            receiverTokenBalanceBefore + contractTokenBalanceBefore
-        );
+        // Stake the NFT
+        stakinglove.stake(tokenId, address(nft));
+    
+        // Verify that the userdata mapping is updated correctly
+       // address staker = stakinglove.userdata(address(nft), tokenId);
+        assertEq(nft.ownerOf(1), address(stakinglove));
     }
 
-    function test_WithdrawNFTs() public {
-        uint256[] memory tokenIds = new uint256[](2);
-        tokenIds[0] = 1;
-        tokenIds[1] = 2;
+   function testStake() public {
+    // Setup user environment
+ 
+    nft.approve(address(stakinglove), 1);
 
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            nft.approve(address(uniqlymigration), tokenIds[i]);
-        }
+    // Test staking
+    stakinglove.stake(1, address(nft));
 
-        uniqlymigration.migrateNFTs(tokenIds);
-        uniqlymigration.withdrawNFTs(tokenIds);
+    // Assertions
+    assertEq(nft.ownerOf(1), address(stakinglove));
 
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            assertEq(nft.ownerOf(tokenIds[i]), receiver);
-        }
-    }
-}
+   }}
+
