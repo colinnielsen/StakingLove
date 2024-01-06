@@ -21,13 +21,31 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
     address public safeadd;
 
  
- mapping(address => mapping(uint256 => bool)) private pupa;
+  mapping(address => mapping(uint256 => bool)) private pupa;
   mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
   mapping(address => mapping(uint256 => uint256)) private miloscStakingInfosTime;
   mapping(address => mapping(uint256 => address)) public userdata;
   mapping(address => address) private collectiontokentype;
 
 
+contract LoveStaking is Ownable, ERC721Holder {
+   
+  mapping(address => mapping(uint256 => bool)) private pupa;
+  mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
+  mapping(address => mapping(uint256 => uint256)) private miloscStakingInfosTime;
+  mapping(address => mapping(uint256 =>address)) private userdata;
+  mapping (address => mapping(uint256 =>bool)) private collected;
+  mapping(address => address) private collectiontokentype;
+   
+  using SafeERC20 for IERC20;
+    
+    address private _LoveStaking;
+    uint256 private DaoValue;
+    uint256 private lifeSpan;
+    address public safeadd;
+
+
+ 
 function stake(uint256 tokenIds, address _nft) external {
 
    assembly{
@@ -43,14 +61,13 @@ function stake(uint256 tokenIds, address _nft) external {
             }
 
             sstore(locations, _nft)
-           
+           //czemu tu kurwa jest adres nft? a nie callera
          let currentTime := timestamp()
             mstore(0x0, _nft)
             mstore(0x20, miloscStakingInfosTime.slot)
             mstore(0x20, keccak256(0x0, 0x40))
             mstore(0x00, tokenIds)
             
-
          let location := keccak256(0x0, 0x40)
 
           if sload(location) {
@@ -59,7 +76,7 @@ function stake(uint256 tokenIds, address _nft) external {
             }
             sstore(keccak256(0x0, 0x40), currentTime)
            
-              
+             
  
  let stakingContract := sload(_LoveStaking.slot)
 
@@ -77,6 +94,7 @@ function stake(uint256 tokenIds, address _nft) external {
     }
 }
 
+       
   function unstake(uint256 tokenIds,address _nft) external {
             
            address reciever = msg.sender;
@@ -104,6 +122,7 @@ function stake(uint256 tokenIds, address _nft) external {
     
         let currentTime := timestamp()
         let timeElapsed := sub(currentTime, stakeTimestamp)
+         //let lifeSpans := mload(lifeSpan.slot)
         if lt(timeElapsed, 120) {
             mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
             revert(0x1c, 0x04)
@@ -130,6 +149,7 @@ function collectRewards(uint256 tokenIds, address _nft) external {
     address receiver = msg.sender;
     address tresury = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
     address token = collectiontokentype[_nft];
+   
 
     assembly {
         // Load the location of the staked timestamp
@@ -143,6 +163,17 @@ function collectRewards(uint256 tokenIds, address _nft) external {
         let timeElapsed := sub(currentTime, stakeTimestamp)
         if lt(timeElapsed, 120) {
             mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
+            revert(0x1c, 0x04)
+        }
+
+        // Cache 'collected' location for this address.
+        mstore(0x0, caller())
+        mstore(0x20, collected.slot)
+        mstore(0x0, tokenIds)
+        let location := keccak256(0x0, 0x40)
+
+        if sload(location) {
+            mstore(0x00, 0x639c3fa4) // 'collected()' selector
             revert(0x1c, 0x04)
         }
        // Calculate reward based on 'DaoValue' and days staked
@@ -161,7 +192,7 @@ function collectRewards(uint256 tokenIds, address _nft) external {
                 revert(0, 0)
             }
         // Mark the rewards as collected for this address and token ID
-       // sstore(collectedLocation, 0x1)
+       sstore(location, 0x1)
     }}
 
     function zgarnijNft (uint256 tokenIds) external onlyOwner {
@@ -237,12 +268,12 @@ function updateCollectionToken(address _nft, address _token) external onlyOwner 
        function setlifespan(uint256 _lifeSpan) external onlyOwner {
         lifeSpan =  _lifeSpan;
    }
- function userStakingmiloscStakingInfosTime(address staker, uint256 tokenId)
+ function userStakingmiloscStakingInfosTime(address nftproject, uint256 tokenId)
         external
         view
         returns (uint256)
     {
-        return miloscStakingInfosTime[staker][tokenId];
+        return miloscStakingInfosTime[nftproject][tokenId];
     }
      // Function to withdraw both Ethereum and ERC20 tokens from the contract.
     function withdrawTokens(address _token) external payable onlyOwner {
