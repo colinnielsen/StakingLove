@@ -7,27 +7,6 @@ import "ERC721A/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
-
-contract StakingLove is Ownable(msg.sender), ERC721Holder {
-
-
-
-  using SafeERC20 for IERC20;
-
-    
-    address private _LoveStaking;
-    uint256 private DaoValue;
-    uint256 private lifeSpan;
-    address public safeadd;
-
- 
-  mapping(address => mapping(uint256 => bool)) private pupa;
-  mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
-  mapping(address => mapping(uint256 => uint256)) private miloscStakingInfosTime;
-  mapping(address => mapping(uint256 => address)) public userdata;
-  mapping(address => address) private collectiontokentype;
-
-
 contract LoveStaking is Ownable, ERC721Holder {
    
   mapping(address => mapping(uint256 => bool)) private pupa;
@@ -43,7 +22,6 @@ contract LoveStaking is Ownable, ERC721Holder {
     uint256 private DaoValue;
     uint256 private lifeSpan;
     address public safeadd;
-
 
  
 function stake(uint256 tokenIds, address _nft) external {
@@ -136,7 +114,7 @@ function stake(uint256 tokenIds, address _nft) external {
              mstore(0x00, hex"23b872dd")
              mstore(0x04, stakingContract)
              mstore(0x24, reciever)
-            mstore(0x44, tokenIds)
+             mstore(0x44, tokenIds)
 
        if iszero(call(gas(),_nft, 0, 0x00, 0x64, 0, 0)) {
                     revert(0, 0)
