@@ -9,35 +9,35 @@ import "solady/src/utils/SafeTransferLib.sol";
 
 contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
-  mapping(address => mapping(uint256 => bool)) private pupa;
-  mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
-  mapping(address => mapping(uint256 => uint256)) private miloscStakingInfosTime;
-  mapping(address => mapping(uint256 =>address)) private userdata;
-  mapping (address => mapping(uint256 =>bool)) private collected;
-  mapping(address => address) private collectiontokentype;
 
     using SafeERC20 for IERC20;
 
-    address private _LoveStaking;
-    address public safeadd;
     uint256 private DaoValue;
     uint256 private lifeSpan;
+    address private _LoveStaking;
+    address public safeadd;
+   
+
+  mapping(address => mapping(uint256 =>address)) public userdata;
+  mapping(address => mapping(uint256 => bool)) private pupa;
+  mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
+  mapping(address => mapping(uint256 => uint256)) private miloscStakingInfosTime;
+  mapping (address => mapping(uint256 =>bool)) private collected;
+  mapping(address => address) private collectiontokentype;
 
 
 
     function stake(uint256 tokenIds, address _nft) external {
         assembly {
-            mstore(0x0, _nft)
-            mstore(0x20, userdata.slot)
-            mstore(0x40, tokenIds) // Use 0x40 - no overriding
 
-            let locations := keccak256(0x0, 0x60)
-            if sload(locations) {
-                mstore(0x0, 0x01336cea) // 'overflow' selector
-                revert(0x1c, 0x04)
-            }
+        mstore(0x0, _nft)
+        mstore(0x20, userdata.slot)
+        mstore(0x20, keccak256(0x0, 0x40))
+        mstore(0x0, tokenIds)
+        let finalLocation := keccak256(0x0, 0x40)
 
-            sstore(locations, _nft)
+        sstore(finalLocation, caller())
+
 
             let currentTime := timestamp()
             mstore(0x0, _nft)
@@ -68,17 +68,20 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
     function unstake(uint256 tokenIds, address _nft) external {
         address reciever = msg.sender;
         assembly {
-            mstore(0x0, _nft)
-            mstore(0x20, userdata.slot)
-            mstore(0x40, tokenIds)
+        
+        mstore(0x0, _nft)
+        mstore(0x20, userdata.slot)
+        mstore(0x20, keccak256(0x0, 0x40))
+        mstore(0x0, tokenIds)
+      
 
-            let location := keccak256(0x0, 0x60)
-            let stakedNft := sload(location)
+            let finalLocation := keccak256(0x0, 0x40)
+            let stakedNft := sload(finalLocation)
             if iszero(stakedNft) {
                 mstore(0x0, 0x039f2e18) // 'NotStaked()' selector
                 revert(0x1c, 0x04)
             }
-            sstore(location, 0x0)
+            sstore(finalLocation, 0x0)
 
             mstore(0x0, _nft)
             mstore(0x20, miloscStakingInfosTime.slot)
