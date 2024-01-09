@@ -7,7 +7,7 @@ import "ERC721A/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
-contract LoveStaking is Ownable, ERC721Holder {
+contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
   mapping(address => mapping(uint256 => bool)) private pupa;
   mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
@@ -23,7 +23,7 @@ contract LoveStaking is Ownable, ERC721Holder {
     uint256 private DaoValue;
     uint256 private lifeSpan;
 
-    
+
 
     function stake(uint256 tokenIds, address _nft) external {
         assembly {

@@ -45,6 +45,8 @@ address user1;
 
     // Assertions
     assertEq(nft.ownerOf(1), address(stakinglove));
+    // Add more assertions here to verify the state of your mappings
 
-   }}
+}}
+
 
