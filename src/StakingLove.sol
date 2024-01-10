@@ -8,44 +8,37 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
 contract StakingLove is Ownable(msg.sender), ERC721Holder {
-
-
     using SafeERC20 for IERC20;
 
     uint256 private DaoValue;
     uint256 private lifeSpan;
     address private _LoveStaking;
     address public safeadd;
-   
 
-  mapping(address => mapping(uint256 =>address)) public userdata;
-  mapping(address => mapping(uint256 => bool)) private pupa;
-  mapping(address => mapping(uint256 => uint256)) private _userStakingTimestamp;
-  mapping(address => mapping(uint256 => uint256)) public miloscStakingInfosTime;
-  mapping (address => mapping(uint256 =>bool)) private collected;
-  mapping(address => address) private collectiontokentype;
+    mapping(address => mapping(uint256 => address)) public userdata;
+    mapping(address => mapping(uint256 => bool)) public pupa;
+    mapping(address => mapping(uint256 => uint256)) public _userStakingTimestamp;
+    mapping(address => mapping(uint256 => uint256)) public miloscStakingInfosTime;
+    mapping(address => mapping(uint256 => bool)) public collected;
+    mapping(address => address) public collectiontokentype;
 
 
 
     function stake(uint256 tokenIds, address _nft) external {
+        
         assembly {
+            mstore(0x0, _nft)
+            mstore(0x20, userdata.slot)
+            mstore(0x20, keccak256(0x0, 0x40))
+            mstore(0x0, tokenIds)
+            let finalLocation := keccak256(0x0, 0x40)
 
-        mstore(0x0, _nft)
-        mstore(0x20, userdata.slot)
-        mstore(0x20, keccak256(0x0, 0x40))
-        mstore(0x0, tokenIds)
-        let finalLocation := keccak256(0x0, 0x40)
-
-          if sload(finalLocation) {
+            if sload(finalLocation) {
                 mstore(0x00, 0x639c3fa4) // 'collected()' selector
                 revert(0x1c, 0x04)
             }
 
             sstore(finalLocation, caller())
-
-
-
-
 
             let currentTime := timestamp()
             mstore(0x0, _nft)
@@ -76,22 +69,19 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
     function unstake(uint256 tokenIds, address _nft) external {
         address reciever = msg.sender;
 
-    assembly {
+        assembly {
+            mstore(0x0, _nft)
+            mstore(0x20, userdata.slot)
+            mstore(0x20, keccak256(0x0, 0x40))
+            mstore(0x0, tokenIds)
+            let finalLocation := keccak256(0x0, 0x40)
 
-        mstore(0x0, _nft)
-        mstore(0x20, userdata.slot)
-        mstore(0x20, keccak256(0x0, 0x40))
-        mstore(0x0, tokenIds)
-        let finalLocation := keccak256(0x0, 0x40)
-
-        let storedAddress := sload(finalLocation)
-        if iszero(storedAddress) {
-            
-            mstore(0x00, 0x01336cea) // 'Unauthorized()' selector
-            revert(0x1c, 0x04)
-        }
-        sstore(finalLocation, 0)
-
+            let storedAddress := sload(finalLocation)
+            if iszero(storedAddress) {
+                mstore(0x00, 0x01336cea) // 'Unauthorized()' selector
+                revert(0x1c, 0x04)
+            }
+            sstore(finalLocation, 0)
 
             mstore(0x0, _nft)
             mstore(0x20, miloscStakingInfosTime.slot)
@@ -104,13 +94,12 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             let lifeSpans := mload(lifeSpan.slot)
             if lt(timeElapsed, 120) {
                 mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
-               revert(0x1c, 0x04)
+                revert(0x1c, 0x04)
             }
 
             sstore(keccak256(0x0, 0x40), 0x0)
 
             let stakingContract := sload(_LoveStaking.slot)
-            
 
             mstore(0x00, hex"23b872dd")
             mstore(0x04, stakingContract)
@@ -181,7 +170,7 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             //Cache Free memory pointer
             let ptr := mload(0x40)
             //Cache _userStakingData location for this address.
-            mstore(0x0,  caller())
+            mstore(0x0, caller())
             mstore(0x20, pupa.slot)
             mstore(0x20, keccak256(0x0, 0x40))
             mstore(0x0, tokenIds)

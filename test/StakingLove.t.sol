@@ -10,18 +10,16 @@ import "forge-std/Vm.sol";
 
 
 contract StakingLoveTest is DSTest {
+
     StakingLove stakinglove;
     MockERC721 nft;
 
     function setUp() public {
      nft = new MockERC721();
-        
-       
-
-        stakinglove = new StakingLove();
-        stakinglove.setLoveStaking(0x2e234DAe75C793f67A35089C9d99245E1C58470b);
+     stakinglove = new StakingLove();
+     stakinglove.setLoveStaking(0x2e234DAe75C793f67A35089C9d99245E1C58470b);
+   
     }
-
 
 
    function testStake() public {
@@ -35,9 +33,7 @@ contract StakingLoveTest is DSTest {
    uint256 stakingTime = stakinglove.userStakingmiloscStakingInfosTime(address(nft), 1);
    assertTrue(stakingTime > 0);
         
-
     }
-
 
    function testUnstake() public {
     uint256 tokenId = 2;
