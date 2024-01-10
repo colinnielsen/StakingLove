@@ -6,6 +6,8 @@ import "../src/StakingLove.sol";
 import "./mocks/MockERC20.sol";
 import "./mocks/MockERC721.sol";
 import "forge-std/Test.sol";
+import "forge-std/Vm.sol";
+
 
 contract StakingLoveTest is DSTest {
     StakingLove stakinglove;
@@ -40,8 +42,27 @@ contract StakingLoveTest is DSTest {
         
         uint256 stakingTime = stakinglove.userStakingmiloscStakingInfosTime(address(nft), 1);
         assertTrue(stakingTime > 0);
+        
 
     }
+
+
+   function testUnstake() public {
+    uint256 tokenId = 2;
+    uint256 skip;
+    nft.approve(address(stakinglove), tokenId);
+     stakinglove.stake(tokenId, address(nft));
+    
+
+    stakinglove.unstake(tokenId, address(nft));
+    assertEq(nft.ownerOf(tokenId), address(this));
+
+     address staker = stakinglove.userdata(address(nft), tokenId);
+     assertEq(staker, address(0), "Userdata mapping not reset correctly");
+
+        
+     uint256 stakeTime = stakinglove.miloscStakingInfosTime(address(nft), tokenId);
+     assertEq(stakeTime, 0, "miloscStakingInfosTime mapping not reset correctly");
+    }
+
 }
-
-
