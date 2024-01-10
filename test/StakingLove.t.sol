@@ -22,26 +22,18 @@ contract StakingLoveTest is DSTest {
         stakinglove.setLoveStaking(0x2e234DAe75C793f67A35089C9d99245E1C58470b);
     }
 
-    function test_stake() public {
-        uint256 tokenId = 1;
-        nft.approve(address(stakinglove), tokenId);
-        stakinglove.stake(tokenId, address(nft));
-        assertEq(nft.ownerOf(1), address(stakinglove));
-        
-    }
+
 
    function testStake() public {
  
     nft.approve(address(stakinglove), 1);
-
     stakinglove.stake(1, address(nft));
 
-   
-      assertEq(nft.ownerOf(1), address(stakinglove));
-      assertEq(stakinglove.userdata(address(nft), 1), address (this));
+    assertEq(nft.ownerOf(1), address(stakinglove));
+    assertEq(stakinglove.userdata(address(nft), 1), address (this));
         
-        uint256 stakingTime = stakinglove.userStakingmiloscStakingInfosTime(address(nft), 1);
-        assertTrue(stakingTime > 0);
+   uint256 stakingTime = stakinglove.userStakingmiloscStakingInfosTime(address(nft), 1);
+   assertTrue(stakingTime > 0);
         
 
     }
@@ -49,20 +41,20 @@ contract StakingLoveTest is DSTest {
 
    function testUnstake() public {
     uint256 tokenId = 2;
-    uint256 skip;
+   
     nft.approve(address(stakinglove), tokenId);
-     stakinglove.stake(tokenId, address(nft));
+    stakinglove.stake(tokenId, address(nft));
     
 
     stakinglove.unstake(tokenId, address(nft));
     assertEq(nft.ownerOf(tokenId), address(this));
 
-     address staker = stakinglove.userdata(address(nft), tokenId);
-     assertEq(staker, address(0), "Userdata mapping not reset correctly");
+    address staker = stakinglove.userdata(address(nft), tokenId);
+    assertEq(staker, address(0), "Userdata mapping not reset correctly");
 
-        
-     uint256 stakeTime = stakinglove.miloscStakingInfosTime(address(nft), tokenId);
-     assertEq(stakeTime, 0, "miloscStakingInfosTime mapping not reset correctly");
+  
+    uint256 stakeTime = stakinglove.miloscStakingInfosTime(address(nft), tokenId);
+    assertEq(stakeTime, 0, "miloscStakingInfosTime mapping not reset correctly");
     }
 
 }
