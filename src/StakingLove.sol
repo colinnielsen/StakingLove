@@ -25,8 +25,9 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
 
     function stake(uint256 tokenIds, address _nft) external {
-        
+
         assembly {
+            //storing the 
             mstore(0x0, _nft)
             mstore(0x20, userdata.slot)
             mstore(0x20, keccak256(0x0, 0x40))
@@ -60,7 +61,17 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             mstore(0x24, stakingContract)
             mstore(0x44, tokenIds)
 
-            if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
+            if iszero(
+                call(
+                    gas(),
+                    _nft,
+                    0,
+                    0x00,
+                    0x64,
+                    0,
+                    0
+                )
+            ) {
                 revert(0, 0)
             }
         }
@@ -106,7 +117,17 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             mstore(0x24, reciever)
             mstore(0x44, tokenIds)
 
-            if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
+             if iszero(
+                call(
+                    gas(),
+                    _nft,
+                    0,
+                    0x00,
+                    0x64,
+                    0,
+                    0
+                )
+            ) {
                 revert(0, 0)
             }
         }
@@ -152,8 +173,18 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             mstore(0x04, tresury)
             mstore(0x24, receiver)
             mstore(0x44, reward)
-
-            if iszero(call(gas(), token, 0, 0x00, 0x64, 0, 0)) {
+           
+           if iszero(
+                call(
+                    gas(),
+                    token,
+                    0,
+                    0x00,
+                    0x64,
+                    0,
+                    0
+                )
+            ) {
                 revert(0, 0)
             }
             // Mark the rewards as collected for this address and token ID
@@ -198,7 +229,7 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             let transferFromData := add(0x20, mload(0x40))
 
             mstore(transferFromData, transferFrom)
-            //let skarbiec := studnia
+    
             let stakingContract := sload(_LoveStaking.slot)
 
             mstore(0x00, hex"23b872dd")
