@@ -109,7 +109,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             sstore(keccak256(0x0, 0x40), 0x0)
 
-            
 
             mstore(0x00, hex"23b872dd")
             mstore(0x04, address())
@@ -197,8 +196,7 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
         address skarbiec = 0x13d8cc1209A8a189756168AbEd747F2b050D075f;
 
         assembly {
-            //Cache Free memory pointer
-            let ptr := mload(0x40)
+           
             //Cache _userStakingData location for this address.
             mstore(0x0, caller())
             mstore(0x20, pupa.slot)
@@ -224,12 +222,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
                 mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
                 revert(0x1c, 0x04)
             }
-
-            let transferFromData := add(0x20, mload(0x40))
-
-            mstore(transferFromData, transferFrom)
-    
-            
 
             mstore(0x00, hex"23b872dd")
             mstore(0x04, address())
