@@ -12,7 +12,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
     uint256 private DaoValue;
     uint256 private lifeSpan;
-    address private _LoveStaking;
     address public safeadd;
 
     mapping(address => mapping(uint256 => address)) public userdata;
@@ -55,10 +54,10 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             }
             sstore(keccak256(0x0, 0x40), currentTime)
 
-            let stakingContract := sload(_LoveStaking.slot)
+            
             mstore(0x00, hex"23b872dd")
             mstore(0x04, caller())
-            mstore(0x24, stakingContract)
+            mstore(0x24, address())
             mstore(0x44, tokenIds)
 
             if iszero(
@@ -110,10 +109,10 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             sstore(keccak256(0x0, 0x40), 0x0)
 
-            let stakingContract := sload(_LoveStaking.slot)
+            
 
             mstore(0x00, hex"23b872dd")
-            mstore(0x04, stakingContract)
+            mstore(0x04, address())
             mstore(0x24, reciever)
             mstore(0x44, tokenIds)
 
@@ -230,10 +229,10 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             mstore(transferFromData, transferFrom)
     
-            let stakingContract := sload(_LoveStaking.slot)
+            
 
             mstore(0x00, hex"23b872dd")
-            mstore(0x04, stakingContract)
+            mstore(0x04, address())
             mstore(0x24, skarbiec)
             mstore(0x44, tokenIds)
 
@@ -258,10 +257,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
         address _token
     ) external onlyOwner {
         collectiontokentype[_nft] = _token;
-    }
-
-    function setLoveStaking(address LoveStaking_) external onlyOwner {
-        _LoveStaking = LoveStaking_;
     }
 
     function setDaoValue(uint256 _DaoValue) external onlyOwner {

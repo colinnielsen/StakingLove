@@ -17,7 +17,7 @@ contract StakingLoveTest is DSTest {
     function setUp() public {
      nft = new MockERC721();
      stakinglove = new StakingLove();
-     stakinglove.setLoveStaking(0x2e234DAe75C793f67A35089C9d99245E1C58470b);
+
    
     }
 
