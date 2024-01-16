@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
 contract StakingLove is Ownable(msg.sender), ERC721Holder {
-
     using SafeERC20 for IERC20;
 
     uint256 private DaoValue;
@@ -20,7 +19,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
     mapping(address => mapping(uint256 => uint256)) public miloscStakingInfosTime;
     mapping(address => mapping(uint256 => bool)) public collected;
     mapping(address => address) public collectiontokentype;
-
 
     function stake(uint256 tokenIds, address _nft) external {
         assembly {
@@ -102,10 +100,10 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
                 sstore(keccak256(0x0, 0x40), currentTime)
 
                 // Prepare ERC721 token transfer call
-                mstore(0x00, hex"23b872dd") // ERC721 transferFrom function signature
-                mstore(0x04, caller()) // From address (caller)
-                mstore(0x24, address()) // To address (this contract)
-                mstore(0x44, tokenId) // TokenId to transfer
+                mstore(0x00, hex"23b872dd") 
+                mstore(0x04, caller()) 
+                mstore(0x24, address()) 
+                mstore(0x44, tokenId) 
 
                 // Execute the transfer
                 if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
@@ -155,6 +153,58 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
                 revert(0, 0)
+            }
+        }
+    }
+
+    function UnstakeBunch(uint256[] calldata tokenIds, address _nft) external {
+        assembly {
+            let length := calldataload(sub(tokenIds.offset, 0x0))
+            let dataStart := add(tokenIds.offset, 0x0)
+            for {
+                let i := dataStart
+            } lt(i, add(dataStart, mul(length, 0x0))) {
+                i := add(i, 0x0)
+            } {
+                let tokenId := calldataload(i)
+
+                mstore(0x0, _nft)
+                mstore(0x20, userdata.slot)
+                mstore(0x20, keccak256(0x0, 0x40))
+                mstore(0x0, tokenId)
+                let finalLocation := keccak256(0x0, 0x40)
+
+                let storedAddress := sload(finalLocation)
+                if iszero(storedAddress) {
+                    mstore(0x00, 0x01336cea) // 'Unauthorized()' selector
+                    revert(0x1c, 0x04)
+                }
+                sstore(finalLocation, 0)
+
+                mstore(0x0, _nft)
+                mstore(0x20, miloscStakingInfosTime.slot)
+                mstore(0x20, keccak256(0x0, 0x40))
+                mstore(0x00, tokenIds)
+                let stakeTimestamp := sload(keccak256(0x0, 0x40))
+
+                let currentTime := timestamp()
+                let timeElapsed := sub(currentTime, stakeTimestamp)
+                let lifeSpans := mload(lifeSpan.slot)
+                if lt(timeElapsed, 120) {
+                    mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
+                    revert(0x1c, 0x04)
+                }
+
+                sstore(keccak256(0x0, 0x40), 0x0)
+
+                mstore(0x00, hex"23b872dd")
+                mstore(0x04, address())
+                mstore(0x24, caller())
+                mstore(0x44, tokenId)
+
+                if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
+                    revert(0, 0)
+                }
             }
         }
     }
