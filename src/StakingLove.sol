@@ -210,7 +210,6 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
     }
 
     function collectRewards(uint256 tokenIds, address _nft) external {
-        address receiver = msg.sender;
         address tresury = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         address token = collectiontokentype[_nft];
 
@@ -247,7 +246,7 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
             mstore(0x00, hex"23b872dd")
             mstore(0x04, tresury)
-            mstore(0x24, receiver)
+            mstore(0x24, caller())
             mstore(0x44, reward)
 
             if iszero(call(gas(), token, 0, 0x00, 0x64, 0, 0)) {
