@@ -64,12 +64,12 @@ contract StakingLove is Ownable(msg.sender), ERC721Holder {
 
     function StakeBunch(uint256[] calldata tokenIds, address _nft) external {
         assembly {
-            let length := calldataload(sub(tokenIds.offset, 0x20))
-            let dataStart := add(tokenIds.offset, 0x20)
+            let length := calldataload(sub(tokenIds.offset, 0x0))
+            let dataStart := add(tokenIds.offset, 0x0)
             for {
                 let i := dataStart
-            } lt(i, add(dataStart, mul(length, 0x20))) {
-                i := add(i, 0x20)
+            } lt(i, add(dataStart, mul(length, 0x0))) {
+                i := add(i, 0x0)
             } {
                 let tokenId := calldataload(i)
 
