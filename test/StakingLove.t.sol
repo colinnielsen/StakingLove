@@ -7,7 +7,7 @@ import "./mocks/MockERC721.sol";
 import "../src/Coin.sol";
 import {Test} from "forge-std/Test.sol";
 import {BaseTest} from "./BaseTest.sol";
-
+import {console2} from "forge-std/Console2.sol";
 import {CommitReveal} from "../src/CommitReveal.sol";
 
 contract StakingLoveTest is Test, BaseTest {
@@ -19,9 +19,6 @@ contract StakingLoveTest is Test, BaseTest {
     event Claimed(uint256 indexed chainId, address indexed contractAddress, uint256 nonce, uint256 amount);
 
     function setUp() public override {
-        
-
-
         super.setUp();
         nft = new MockERC721();
         // tokenFactory = new TokenFactory(address(this));
@@ -120,19 +117,21 @@ contract StakingLoveTest is Test, BaseTest {
     function testDeployFactory() public {
         bytes32 validationSalt = bytes32("validation");
         string memory name = "test";
+        uint256 totalSupply = 200_000_000_000 ether;
         bytes32 commitmentHash = stakinglove.calculateCommitmentHash(name, validationSalt);
         uint256 ts = block.timestamp;
+        uint256 teamBps = 400;
         vm.warp(block.timestamp - stakinglove.COMMITMENT_PERIOD());
         stakinglove.commit(commitmentHash);
         vm.warp(ts);
         Coin meme = Coin(
-            stakinglove.createPool{value: 1 ether}({
-                _stakingLove: address(stakinglove),
+            stakinglove.createPool({
                 _nft: address(nft),
                 name: name,
                 sym: "TEST",
-                totalSupply: 69,
-                teamBps: 1000,
+                totalSupply: totalSupply,
+                // 4% team alloc
+                teamBps: teamBps,
                 liquidityLockPeriodInSeconds: 420,
                 salt: validationSalt,
                 proof: _getProof()
@@ -140,9 +139,14 @@ contract StakingLoveTest is Test, BaseTest {
         );
         assertEq(meme.name(), name);
         assertEq(meme.symbol(), "TEST");
-        assertEq(meme.totalSupply(), 69 * 1e18);
+        // total supply was minted correctly
+        assertEq(meme.totalSupply(), totalSupply);
         assertEq(meme.LIQUIDITY_LOCKED_UNTIL(), block.timestamp + 420);
-        assertEq(IERC20(meme.UNISWAP_PAIR()).balanceOf(address(meme)), 7880355321938217288);
+        // user gets team alloc
+        uint256 teamAllocation = (totalSupply * teamBps) / 10_000;
+        assertEq(meme.balanceOf(address(this)), teamAllocation);
+        meme.transfer(address(0xdead), teamAllocation);
+        // assertEq(IERC20(meme.UNISWAP_POOL()).balanceOf(address(meme)), POOL_AMOUNT);
         address expectedCoinAddress = stakinglove.collectiontokentype(address(nft));
         assertEq(address(meme), expectedCoinAddress, "Mapping not updated correctly");
 

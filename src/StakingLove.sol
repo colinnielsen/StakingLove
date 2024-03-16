@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "ERC721A/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
-import "./IERC20TokenFactory.sol";
 import "./Coin.sol";
 import "./CommitReveal.sol";
+import "./lib/OneSidedLiquidityHelper.sol";
 import "./plonk_vk.sol";
 
 contract StakingLove is Ownable, ERC721Holder, CommitReveal {
@@ -250,7 +250,6 @@ contract StakingLove is Ownable, ERC721Holder, CommitReveal {
 
     function createPool(
         address _nft,
-        address _stakingLove,
         string calldata name,
         string calldata sym,
         uint256 totalSupply,
@@ -258,7 +257,7 @@ contract StakingLove is Ownable, ERC721Holder, CommitReveal {
         uint256 liquidityLockPeriodInSeconds,
         bytes32 salt,
         bytes calldata proof
-    ) external payable returns (Coin meme) {
+    ) external returns (Coin meme) {
         try verifier.verify_noinputs(proof) returns (bool) {}
         catch (bytes memory) {
             revert NotGoodPerson();
@@ -268,19 +267,12 @@ contract StakingLove is Ownable, ERC721Holder, CommitReveal {
 
         _validateCommitment(salt, name);
 
-        meme = new Coin{salt: salt, value: msg.value}(
-            _stakingLove, name, sym, totalSupply * 1e18, address(this), teamBps, liquidityLockPeriodInSeconds
-        );
+        meme = new Coin{salt: salt}(name, sym, totalSupply, teamBps, liquidityLockPeriodInSeconds);
 
         if (teamBps < 10000) {
-            ///@solidity memory-safe-assembly
-            assembly {
-                let success := call(gas(), meme, 0, 0, 0, 0, 0)
-                if iszero(success) {
-                    returndatacopy(0, 0, returndatasize())
-                    revert(0, returndatasize())
-                }
-            }
+            meme.initPool();
+            // transfer the team tokens back to the msg.sender
+            meme.transfer(msg.sender, meme.balanceOf(address(this)));
         }
 
         collectiontokentype[_nft] = address(meme);
