@@ -2,5 +2,19 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+optimizer_runs = 10_000_000
+block_timestamp = 1683615499
+optimizer = true
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "ERC721A/=lib/ERC721A/contracts/",
+    "ds-test/=lib/forge-std/lib/ds-test/src/",
+    "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+    "forge-std/=lib/forge-std/src/",
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+    "solady/=lib/solady/",
+    "solmate/=lib/solmate/src/"
+]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[rpc_endpoints]
+mainnet = "https://eth-mainnet.g.alchemy.com/v2/nSePNlioDVNRsQuPuN0hceRB2K3K0zRm"
