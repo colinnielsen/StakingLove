@@ -9,11 +9,10 @@ import "ERC721A/IERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "solady/src/utils/SafeTransferLib.sol";
 import "./Coin.sol";
-import "./CommitReveal.sol";
 import "./lib/OneSidedLiquidityHelper.sol";
 import "./plonk_vk.sol";
 
-contract StakingLove is Ownable, ERC721Holder, CommitReveal {
+contract StakingLove is Ownable, ERC721Holder {
     using SafeERC20 for IERC20;
 
     UltraVerifier public immutable verifier = new UltraVerifier();
@@ -264,8 +263,6 @@ contract StakingLove is Ownable, ERC721Holder, CommitReveal {
         }
 
         require(collectiontokentype[_nft] == address(0), "NFT already used for a pool");
-
-        _validateCommitment(salt, name);
 
         meme = new Coin{salt: salt}(name, sym, totalSupply, teamBps, liquidityLockPeriodInSeconds);
 

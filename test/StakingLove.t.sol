@@ -118,11 +118,11 @@ contract StakingLoveTest is Test, BaseTest {
         bytes32 validationSalt = bytes32("validation");
         string memory name = "test";
         uint256 totalSupply = 200_000_000_000 ether;
-        bytes32 commitmentHash = stakinglove.calculateCommitmentHash(name, validationSalt);
+        // bytes32 commitmentHash = stakinglove.calculateCommitmentHash(name, validationSalt);
         uint256 ts = block.timestamp;
         uint256 teamBps = 400;
-        vm.warp(block.timestamp - stakinglove.COMMITMENT_PERIOD());
-        stakinglove.commit(commitmentHash);
+        // vm.warp(block.timestamp - stakinglove.COMMITMENT_PERIOD());
+        // stakinglove.commit(commitmentHash);
         vm.warp(ts);
         Coin meme = Coin(
             stakinglove.createPool({
