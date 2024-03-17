@@ -16,8 +16,8 @@ contract NFTStaker {
         if (block.chainid != 8453) revert("can only deploy on base");
     }
 
-    function createStakingPool(IERC721Metadata nftToStake, uint256 tokenIdToStake) public {
-        (string memory name, string memory symbol) = _getNameAndSymbol(nftToStake);
+    function createStakingPool(IERC721Metadata createPoolFor) public {
+        (string memory name, string memory symbol) = _getNameAndSymbol(createPoolFor);
 
         bytes32 validationSalt = keccak256("RANDOM_VALUE");
         uint256 totalSupply = 200_000_000_000 ether;
@@ -25,7 +25,7 @@ contract NFTStaker {
         // bytes32 commitmentHash = stakingLove.calculateCommitmentHash(name, validationSalt);
 
         stakingLove.createPool({
-            _nft: address(nftToStake),
+            _nft: address(createPoolFor),
             name: name,
             sym: symbol,
             totalSupply: totalSupply,
